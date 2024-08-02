@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOL KHARA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+        .cashbox-display {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        .item-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-actions button {
+            margin-left: 10px;
+            background-color: #28a745;
+        }
+        .item-actions button.delete {
+            background-color: #dc3545;
+        }
+        .item-actions button.sell {
+            background-color: #007bff;
+        }
+        .form-group .search-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .clear-cashbox-button {
+            background-color: #dc3545;
+            margin-top: 10px;
+        }
+        .clear-cashbox-button:hover {
+            background-color: #c82333;
+        }
+        .currency-select {
+            display: inline-block;
+            width: auto;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>SystemSupplementsManagement </h1>
+
+        <!-- Cashbox Display -->
+        <div class="cashbox-display">
+            Cashbox Amount: $<span id="cashbox-display">0</span> | LBP <span id="cashbox-display-lbp">0</span>
+        </div>
+
+        <!-- Search Form -->
+        <div class="form-group">
+            <input type="text" id="search-input" class="search-input" placeholder="Search for items..." oninput="searchItems()">
+        </div>
+
+        <!-- Items Form -->
+        <div class="form-group">
+            <label for="item">Item Name</label>
+            <input type="text" id="item" placeholder="Enter item name">
+        </div>
+
+        <div class="form-group">
+            <label for="cost">Cost Price</label>
+            <input type="number" id="cost" placeholder="Enter cost price">
+        </div>
+
+        <div class="form-group">
+            <label for="retail-price">Retail Price (USD)</label>
+            <input type="number" id="retail-price" placeholder="Enter retail price">
+        </div>
+
+        <div class="form-group">
+            <button type="button" onclick="addItem()">Add Item</button>
+        </div>
+
+        <!-- Items Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Cost Price</th>
+                    <th>Retail Price (USD)</th>
+                    <th>Retail Price (LBP)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="items-list">
+                <!-- Items will be added here dynamically -->
+            </tbody>
+        </table>
+
+        <!-- Pay Invoice Button -->
+        <div class="form-group">
+            <button type="button" onclick="payInvoice()">Pay Invoice</button>
+        </div>
+
+        <!-- Clear Cashbox Button -->
+        <div class="form-group">
+            <button type="button" class="clear-cashbox-button" onclick="clearCashbox()">Clear Cashbox</button>
+        </div>
+    </div>
+
+    <script>
+        const conversionRate = 90000; // 1 USD = 90000 LBP
+
+        // Load data from localStorage on page load
+        window.onload = function() {
+            loadItems();
+            updateCashboxDisplay();
+        };
+
+        function addItem() {
+            // Get the values from the form
+            var item = document.getElementById("item").value;
+            var cost = document.getElementById("cost").value;
+            var retailPrice = document.getElementById("retail-price").value;
+
+            if(item && cost && retailPrice) {
+                // Save item to localStorage
+                saveItem(item, cost, retailPrice);
+
+                // Clear the form fields
+                document.getElementById("item").value = "";
+                document.getElementById("cost").value = "";
+                document.getElementById("retail-price").value = "";
+
+                // Reload items to reflect the new addition
+                loadItems();
+            } else {
+                alert("Please fill out all fields.");
+            }
+        }
+
+        function saveItem(item, cost, retailPrice) {
+            // Get existing items from localStorage
+            var items = JSON.parse(localStorage.getItem("items")) || [];
+
+            // Add new item to the list
+            items.push({ item: item, cost: cost, retailPrice: retailPrice });
+
+            // Save updated list back to localStorage
+            localStorage.setItem("items", JSON.stringify(items));
+        }
+
+        function loadItems() {
+            // Get items from localStorage
+            var items = JSON.parse(localStorage.getItem("items")) || [];
+
+            // Populate the table with saved items
+            var table = document.getElementById("items-list");
+            table.innerHTML = ""; // Clear existing rows
+
+            items.forEach(function(itemData, index) {
+                var row = table.insertRow(-1);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+
+                cell1.textContent = itemData.item;
+                cell2.textContent = itemData.cost;
+                cell3.textContent = `$${itemData.retailPrice}`;
+                cell4.textContent = `LBP ${(itemData.retailPrice * conversionRate).toLocaleString()}`;
+
+                // Actions cell
+                cell5.innerHTML = `
+                    <div class="item-actions">
+                        <select id="currency-${index}" class="currency-select">
+                            <option value="USD">USD</option>
+                            <option value="LBP">LBP</option>
+                        </select>
+                        <input type="number" value="1" min="1" id="quantity-${index}" placeholder="Qty">
+                        <button class="sell" onclick="sellItem(${index})">Sell</button>
+                        <button class="delete" onclick="deleteItem(${index})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function payInvoice() {
+            // Get items from localStorage
+            var items = JSON.parse(localStorage.getItem("items")) || [];
+            if (items.length === 0) {
+                alert("No items to sell!");
+                return;
+            }
+
+            // Calculate total retail price in USD
+            var totalRetailUSD = items.reduce((total, item) => total + parseFloat(item.retailPrice), 0);
+            var totalRetailLBP = totalRetailUSD * conversionRate;
+
+            // Get cashbox amount from localStorage
+            var cashboxAmountUSD = parseFloat(localStorage.getItem("cashbox")) || 0;
+            var cashboxAmountLBP = parseFloat(localStorage.getItem("cashboxLBP")) || 0;
+
+            // Update cashbox amount
+            cashboxAmountUSD += totalRetailUSD;
+            cashboxAmountLBP += totalRetailLBP;
+
+            // Save updated cashbox amounts to localStorage
+            localStorage.setItem("cashbox", cashboxAmountUSD);
+            localStorage.setItem("cashboxLBP", cashboxAmountLBP);
+
+            // Clear items list
+            localStorage.removeItem("items");
+            document.getElementById("items-list").innerHTML = "";
+
+            // Update cashbox display
+            updateCashboxDisplay();
+
+            alert(`Invoice paid! Total added to cashbox: $${totalRetailUSD.toFixed(2)} | LBP ${totalRetailLBP.toLocaleString()}`);
+        }
+
+        function updateCashboxDisplay() {
+            // Get cashbox amount from localStorage
+            var cashboxAmountUSD = parseFloat(localStorage.getItem("cashbox")) || 0;
+            var cashboxAmountLBP = parseFloat(localStorage.getItem("cashboxLBP")) || 0;
+
+            // Update cashbox display
+            document.getElementById("cashbox-display").textContent = cashboxAmountUSD.toFixed(2);
+            document.getElementById("cashbox-display-lbp").textContent = cashboxAmountLBP.toLocaleString();
+        }
+
+        function deleteItem(index) {
+            // Get items from localStorage
+            var items = JSON.parse(localStorage.getItem("items")) || [];
+
+            // Remove the item from the list
+            items.splice(index, 1);
+
+            // Save updated list back to localStorage
+            localStorage.setItem("items", JSON.stringify(items));
+
+            // Reload items to reflect the deletion
+            loadItems();
+        }
+
+        function sellItem(index) {
+            // Get items from localStorage
+            var items = JSON.parse(localStorage.getItem("items")) || [];
+
+            // Get the selected item and quantity
+            var itemData = items[index];
+            var quantity = parseInt(document.getElementById(`quantity-${index}`).value);
+            var currency = document.getElementById(`currency-${index}`).value;
+
+            if (quantity > 0) {
+                var totalSaleUSD = itemData.retailPrice * quantity;
+                var totalSaleLBP = totalSaleUSD * conversionRate;
+
+                if (currency === "USD") {
+                    // Update the cashbox amount in USD
+                    var cashboxAmountUSD = parseFloat(localStorage.getItem("cashbox")) || 0;
+                    cashboxAmountUSD += totalSaleUSD;
+                    localStorage.setItem("cashbox", cashboxAmountUSD);
+                    alert(`Sold ${quantity} of ${itemData.item} for $${totalSaleUSD.toFixed(2)}`);
+                } else {
+                    // Update the cashbox amount in LBP
+                    var cashboxAmountLBP = parseFloat(localStorage.getItem("cashboxLBP")) || 0;
+                    cashboxAmountLBP += totalSaleLBP;
+                    localStorage.setItem("cashboxLBP", cashboxAmountLBP);
+                    alert(`Sold ${quantity} of ${itemData.item} for LBP ${totalSaleLBP.toLocaleString()}`);
+                }
+
+                // Update cashbox display
+                updateCashboxDisplay();
+
+                // If quantity is 1, remove the item from the list
+                if (quantity === 1) {
+                    deleteItem(index);
+                }
+            } else {
+                alert("Please enter a valid quantity.");
+            }
+        }
+
+        function searchItems() {
+            // Get the search term
+            var searchTerm = document.getElementById("search-input").value.toLowerCase();
+
+            // Get items from localStorage
+            var items = JSON.parse(localStorage.getItem("items")) || [];
+
+            // Filter items based on the search term
+            var filteredItems = items.filter(item => item.item.toLowerCase().includes(searchTerm));
+
+            // Populate the table with filtered items
+            var table = document.getElementById("items-list");
+            table.innerHTML = ""; // Clear existing rows
+
+            filteredItems.forEach(function(itemData, index) {
+                var row = table.insertRow(-1);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+
+                cell1.textContent = itemData.item;
+                cell2.textContent = itemData.cost;
+                cell3.textContent = `$${itemData.retailPrice}`;
+                cell4.textContent = `LBP ${(itemData.retailPrice * conversionRate).toLocaleString()}`;
+
+                // Actions cell
+                cell5.innerHTML = `
+                    <div class="item-actions">
+                        <select id="currency-${index}" class="currency-select">
+                            <option value="USD">USD</option>
+                            <option value="LBP">LBP</option>
+                        </select>
+                        <input type="number" value="1" min="1" id="quantity-${index}" placeholder="Qty">
+                        <button class="sell" onclick="sellItem(${index})">Sell</button>
+                        <button class="delete" onclick="deleteItem(${index})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function clearCashbox() {
+            if (confirm("Are you sure you want to clear the cashbox?")) {
+                // Clear cashbox in localStorage
+                localStorage.setItem("cashbox", 0);
+                localStorage.setItem("cashboxLBP", 0);
+
+                // Update cashbox display
+                updateCashboxDisplay();
+
+                alert("Cashbox has been cleared!");
+            }
+        }
+    </script>
+
+</body>
+</html>
+
+
