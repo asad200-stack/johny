@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sardecoffeshop - نظام إدارة الطلبات (الإصدار 1.1.0)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2c3e50" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Sardecoffeshop" />
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <h2>Sardecoffeshop</h2>
+      <h3>نظام الطلبات</h3>
+      <button onclick="showAddItemForm()">➕ إضافة صنف جديد</button>
+      <button onclick="showOrderInterface()">📋 قائمة الطلبات</button>
+      <button onclick="showTablesInterface()">🪑 إدارة الطاولات</button>
+      <button onclick="showKitchenInterface()">👨‍🍳 واجهة المطبخ</button>
+    </aside>
+    <main class="main-content" id="main-content">
+      <h1>مرحباً بك في Sardecoffeshop 👋</h1>
+      <p>اختر من القائمة الجانبية لبدء العمل</p>
+    </main>
+  </div>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="script.js"></script>
+  <script>
+    // تسجيل Service Worker للعمل بدون إنترنت
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مطبخ Sardecoffeshop (الإصدار 1.1.0)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2c3e50" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Sardecoffeshop Kitchen" />
+</head>
+<body>
+    <div class="kitchen-container">
+        <header class="kitchen-header">
+            <h1>👨‍🍳 مطبخ Sardecoffeshop 👨‍🍳</h1>
+            <p>إدارة الطلبات والمراجعات</p>
+            <div class="kitchen-stats">
+                <span id="new-orders-count">0</span> طلبات جديدة
+                <span id="done-orders-count">0</span> طلبات مكتملة
+            </div>
+        </header>
+
+        <main class="kitchen-main">
+            <div class="orders-section">
+                <h2>📋 الطلبات الحالية</h2>
+                <div id="orders-container" class="orders-grid"></div>
+            </div>
+
+            <div class="service-section">
+                <h2>🔔 طلبات المراجعة</h2>
+                <div id="service-requests" class="service-requests"></div>
+            </div>
+        </main>
+
+        <footer class="kitchen-footer">
+            <p>آخر تحديث: <span id="last-update">-</span></p>
+            <button onclick="window.location.href='index.html'" class="back-btn">العودة للوحة التحكم</button>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="kitchen.js"></script>
+</body>
+</html> 

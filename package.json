@@ -1,0 +1,25 @@
+{
+  "name": "sardecoffeshop-order-system",
+  "version": "1.0.0",
+  "description": "نظام إدارة طلبات المطاعم - Sardecoffeshop",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": [
+    "restaurant",
+    "order",
+    "management",
+    "qr-code",
+    "kitchen"
+  ],
+  "author": "Sardecoffeshop",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/[username]/order-system.git"
+  },
+  "homepage": "https://[username].github.io/order-system"
+} 
